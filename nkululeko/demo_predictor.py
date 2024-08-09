@@ -30,7 +30,7 @@ class Demo_predictor:
             if not self.is_list:
                 sig, sr = audiofile.read(self.file)
                 print(
-                    f"predicting file: {self.file}, len: {len(sig)} bytes,"
+                    f"Predicting file: {self.file}, len: {len(sig)} bytes,"
                     f" sampling rate: {sr}"
                 )
                 self.predict_signal(sig, sr)
@@ -42,7 +42,7 @@ class Demo_predictor:
                     in_df = audformat.utils.read_csv(self.file)
                     if audformat.is_segmented_index(in_df.index):
                         self.util.error(
-                            f"segmented index not implemented yet: {self.file}"
+                            f"Segmented index not implemented yet: {self.file}"
                         )
                     else:
                         file_list = in_df.index.values
@@ -59,7 +59,7 @@ class Demo_predictor:
                     test_folder = glob_conf.config["DATA"]["test_folder"]
                     file_path = os.path.join(test_folder, file_name.strip())
                     sig, sr = audiofile.read(file_path)
-                    print(f"predicting file {file_path}")
+                    print(f"Predicting file {file_path}")
                     res_dict = self.predict_signal(sig, sr)
                     df_tmp = pd.DataFrame(res_dict, index=[file_name.strip()])
                     df_res = pd.concat([df_res, df_tmp], ignore_index=False)
@@ -72,13 +72,11 @@ class Demo_predictor:
                 else:
                     self.util.debug(df_res)
         else:
-            answer = input("want to record y/n?")
+            answer = input("Want to record y/n?")
             while answer == "y":
                 signal = self.record_audio(3)
                 self.predict_signal(signal, self.sr)
-                answer = input("want to record y/n?")
-
-    #            self.play_audio(signal)
+                answer = input("Want to record y/n?")
 
     def predict_signal(self, signal, sr):
         features = self.feature_extractor.extract_sample(signal, sr)
@@ -97,21 +95,23 @@ class Demo_predictor:
                     lab = self.label_encoder.inverse_transform(ak)[0]
                     dict_2[lab] = f"{result_dict[k]:.3f}"
                 dict_2["predicted"] = max(dict_2, key=dict_2.get)
-                print(dict_2)
+                # Print the predicted age group
+                print(f"Predicted Age Group: {dict_2['predicted']}")
                 return dict_2
             else:
                 print(result_dict)
                 return result_dict
         else:
-            # experiment is regression and returns one estimation
+            # Experiment is regression and returns one estimation
             dict_2["predicted"] = result_dict
-            print(dict_2)
+            # Print the predicted age group
+            print(f"Predicted Age Group: {dict_2['predicted']}")
             return dict_2
 
     def record_audio(self, seconds):
         import sounddevice as sd
 
-        print("recording ...", flush=True)
+        print("Recording ...", flush=True)
         y = sd.rec(int(seconds * self.sr), samplerate=self.sr, channels=1)
         sd.wait()
         y = y.T
@@ -120,6 +120,6 @@ class Demo_predictor:
     def play_audio(self, signal):
         import sounddevice as sd
 
-        print("playback ...")
+        print("Playback ...")
         sd.play(signal.T, self.sr)
         status = sd.wait()
